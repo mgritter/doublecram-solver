@@ -143,5 +143,15 @@ def makeMove( shape, coord ):
 
     return [ Shape(p).canonical() for p in decompose( squares ) ]
 
+def showMove( shape, coord ):
+    squares = set( shape.coords )
+    x,y = coord
+    squares.remove( (x,y) )
+    squares.remove( (x+1,y) )
+    squares.remove( (x,y+1) )
+    squares.remove( (x+1,y+1) )
+
+    return [ Shape(p) for p in decompose( squares ) ]
+
     
 

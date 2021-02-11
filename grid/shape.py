@@ -96,8 +96,9 @@ class Shape(object):
     def canonical( self ):
         """Return the lexicographically smallest of the shape under
         the symmetries of the square"""
-        self.shiftToZero()
-        return min( self,
+        identity = Shape( self.coords )
+        identity.shiftToZero()
+        return min( identity,
                     self.rotate90(),
                     self.rotate180(),
                     self.rotate270(),
