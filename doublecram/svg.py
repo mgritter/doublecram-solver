@@ -76,8 +76,8 @@ class Position(object):
         self.values = values
         
 def gameTree( shape, values, maxLevels = 4 ):
-    maxWidth = max( x for (x,y) in shape.coords ) + 1
-    x_spacing = (maxWidth + 2) * 10
+    max_width = max( x for (x,y) in shape.coords ) + 1
+    x_spacing = (max_width + 2) * 10
     min_x = 0
     
     levels = [[shape]]
@@ -99,8 +99,12 @@ def gameTree( shape, values, maxLevels = 4 ):
             for (mx,my) in vm:
                 # pieces of the partition are not made canonical yet
                 partition = showMove( s, (mx,my) )
-                partition_values = [ values[x.canonical().key()] for x in partition ]
-                key = ((mx,my),s.key())
+                canonical = [ x.canonical().key() for x in partition ]
+                partition_values = [ values[x] for x in canonical ]
+
+                # Only show each resulting position once
+                canonical.sort()
+                key = tuple( canonical )
                 if key in nextLevel:
                     nextLevel[key].parent.append( j )
                 else:
@@ -119,7 +123,20 @@ def gameTree( shape, values, maxLevels = 4 ):
     for i, level in enumerate( levels ):
         if i == 0:
             drawRegion( d, level[0].coords, 0, 0 )
-            anchors[(0,0)] = (x_spacing / 2, x_spacing )
+            anchors[(0,0)] = (max_width * 5, x_spacing )
+
+            if values[shape.key()] == 0:
+                label = 0
+            else:
+                label = "*" + str( values[shape.key()] )
+                
+            d.add( d.text( label,
+                           insert = ( max_width * 5,
+                                      max_width * 10 + 10 ),
+                           font_size = "10",
+                           font_family = ["Arial", "Helvetica", "sans-serif" ],
+                           text_anchor = "middle"))
+            
             continue
         numToDraw = len( level )
         x_start = -(numToDraw * x_spacing) / 2
@@ -134,7 +151,7 @@ def gameTree( shape, values, maxLevels = 4 ):
             for part in p.partitions:
                 remaining.difference_update( part.coords )
 
-            anchors[(i,j)] = (x_start + j * x_spacing + x_spacing / 2,
+            anchors[(i,j)] = (x_start + j * x_spacing + max_width * 5,
                               y_start + x_spacing )
                 
             drawRegion( d, remaining,
@@ -151,14 +168,26 @@ def gameTree( shape, values, maxLevels = 4 ):
                             y_start,
                             **(colors[k%len(colors)]) )
 
+            if len( p.partitions ) == 0:
+                label = "0"
+            else:
+                label = " + ".join( "*" + str(v) for v in p.values )
+                
+            d.add( d.text( label,
+                           insert = ( x_start + j * x_spacing + max_width * 5,
+                                      y_start + (max_width * 10 + 10) ),
+                           font_size = "10",
+                           font_family = ["Arial", "Helvetica", "sans-serif" ],
+                           text_anchor = "middle"))
+
             for parent_index in p.parent:
-                d.add( d.line( (x_start + j * x_spacing + x_spacing / 2,
+                d.add( d.line( (x_start + j * x_spacing + max_width * 5,
                                 y_start - 10),
                                anchors[(i-1,parent_index)],
                                stroke="black" ) )
 
 
-    d.viewbox( min_x, 0, -2 * min_x + x_spacing, (len( levels )+1) * 100 )
+    d.viewbox( min_x, - x_spacing, -2 * min_x + x_spacing, (len( levels )+1) * 100 )
     return d
 
 
@@ -179,7 +208,7 @@ def colorDemo():
     d.saveas( "color-demo.svg" )
 
 def treeDemo():
-    square, _, values = solve_square( 4 )
+    square, _, values = solve_square( 5 )
     d = gameTree( square, values )
     d.saveas( "game-tree.svg" )
     
