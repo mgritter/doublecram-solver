@@ -77,7 +77,9 @@ class Position(object):
         
 def gameTree( shape, values, maxLevels = 4 ):
     max_width = max( x for (x,y) in shape.coords ) + 1
+    max_height = max( y for (x,y) in shape.coords ) + 1
     x_spacing = (max_width + 2) * 10
+    y_spacing = (max_height + 8) * 10
     min_x = 0
     
     levels = [[shape]]
@@ -123,7 +125,7 @@ def gameTree( shape, values, maxLevels = 4 ):
     for i, level in enumerate( levels ):
         if i == 0:
             drawRegion( d, level[0].coords, 0, 0 )
-            anchors[(0,0)] = (max_width * 5, x_spacing )
+            anchors[(0,0)] = (max_width * 5, max_height * 10 + 20 )
 
             if values[shape.key()] == 0:
                 label = 0
@@ -132,7 +134,7 @@ def gameTree( shape, values, maxLevels = 4 ):
                 
             d.add( d.text( label,
                            insert = ( max_width * 5,
-                                      max_width * 10 + 10 ),
+                                      max_height * 10 + 10 ),
                            font_size = "10",
                            font_family = ["Arial", "Helvetica", "sans-serif" ],
                            text_anchor = "middle"))
@@ -142,7 +144,7 @@ def gameTree( shape, values, maxLevels = 4 ):
         x_start = -(numToDraw * x_spacing) / 2
         if x_start < min_x:
             min_x = x_start
-        y_start = 100 * i
+        y_start = y_spacing * i
         colors = [blue, green, purple]
         
         for j, p in enumerate( level ):
@@ -152,7 +154,7 @@ def gameTree( shape, values, maxLevels = 4 ):
                 remaining.difference_update( part.coords )
 
             anchors[(i,j)] = (x_start + j * x_spacing + max_width * 5,
-                              y_start + x_spacing )
+                              y_start + max_height * 10 + 20 )
                 
             drawRegion( d, remaining,
                         x_start + j * x_spacing,
@@ -175,7 +177,7 @@ def gameTree( shape, values, maxLevels = 4 ):
                 
             d.add( d.text( label,
                            insert = ( x_start + j * x_spacing + max_width * 5,
-                                      y_start + (max_width * 10 + 10) ),
+                                      y_start + (max_height * 10 + 10) ),
                            font_size = "10",
                            font_family = ["Arial", "Helvetica", "sans-serif" ],
                            text_anchor = "middle"))
@@ -187,7 +189,7 @@ def gameTree( shape, values, maxLevels = 4 ):
                                stroke="black" ) )
 
 
-    d.viewbox( min_x, - x_spacing, -2 * min_x + x_spacing, (len( levels )+1) * 100 )
+    d.viewbox( min_x, - x_spacing, -2 * min_x + x_spacing, (len( levels )+1) * y_spacing )
     return d
 
 

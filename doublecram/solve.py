@@ -41,6 +41,14 @@ def solve_square(n, values=None):
         values = {}
     val = solve_position( start, values )
     return start, val, values
+
+def solve_mn(m, n, values=None):
+    coords = [(x,y) for x in range(n) for y in range(m)]
+    start = Shape( coords ).canonical()
+    if values is None:
+        values = {}
+    val = solve_position( start, values )
+    return start, val, values
     
 if __name__ == "__main__":
     solve_square( 4 )
